@@ -1,0 +1,307 @@
+import 'package:flutter/material.dart';
+
+import 'ciudad.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.pink,
+      ),
+      home: const MyHomePage(title: 'Algoritmo de Djikstra'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  String? dropdownValueOrigin;
+  String? dropdownValueDestination; // Valor inicial del ComboBox
+
+  City armenia = City("Armenia");
+  City valledupar = City("Valledupar");
+  City bogota = City("Bogotá");
+  City medellin = City("Medellín");
+  City cali = City("Cali");
+  City barranquilla = City("Barranquilla");
+  City cartagena = City("Cartagena");
+  City pereira = City("Pereira");
+  City Bucaramanga = City("bucaramanga");
+
+  List<String> ciudades = [
+    ("Armenia"),
+    ("Valledupar"),
+    ("Bogotá"),
+    ("Medellín"),
+    ("Cali"),
+    ("Barranquilla"),
+    ("Cartagena"),
+    ("Pereira"),
+    ("Bucaramnga")
+  ];
+
+  List<String> ciudadesOrigin = [];
+  List<String> ciudadesDestination = [];
+  List<Widget> markers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    ciudadesOrigin = List<String>.from(ciudades);
+    ciudadesDestination = List<String>.from(ciudades);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    armenia.addConnection(bogota, 150);
+    armenia.addConnection(cali, 180);
+
+    valledupar.addConnection(barranquilla, 200);
+
+    bogota.addConnection(armenia, 150);
+    bogota.addConnection(medellin, 300);
+    bogota.addConnection(cali, 400);
+    bogota.addConnection(cartagena, 450);
+
+    medellin.addConnection(bogota, 300);
+    medellin.addConnection(cali, 250);
+
+    cali.addConnection(armenia, 180);
+    cali.addConnection(bogota, 400);
+    cali.addConnection(medellin, 250);
+
+    barranquilla.addConnection(valledupar, 200);
+
+    cartagena.addConnection(bogota, 450);
+
+    pereira.addConnection(bogota, 300);
+    pereira.addConnection(cali, 220);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Text("Ciudad de origen: "),
+                DropdownButton<String>(
+                  value: dropdownValueOrigin,
+                  hint: Text('Seleccione...'),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownValueOrigin = newValue!;
+                      ciudadesDestination = List<String>.from(ciudades);
+                      ciudadesDestination.remove(newValue);
+                      _mostrarIcons(dropdownValueOrigin.toString());
+                    });
+                  },
+                  items: <DropdownMenuItem<String>>[
+                    const DropdownMenuItem<String>(
+                      value: null,
+                      child: Text('Seleccione...'),
+                    ),
+                    ...ciudades.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Text("Ciudad de destino: "),
+                DropdownButton<String>(
+                  value: dropdownValueDestination,
+                  hint: const Text('Seleccione...'),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownValueDestination = newValue!;
+                      ciudadesOrigin = List<String>.from(ciudades);
+                      ciudadesOrigin.remove(newValue);
+                      _mostrarIcons(dropdownValueDestination.toString());
+                    });
+                  },
+                  items: <DropdownMenuItem<String>>[
+                    const DropdownMenuItem<String>(
+                      value: null,
+                      child: Text('Seleccione...'),
+                    ),
+                    ...ciudadesDestination
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }),
+                  ],
+                ),
+              ],
+            ),
+            Stack(
+              children: <Widget>[
+                SizedBox(
+                  height: 500,
+                  width: 500,
+                  child: Image.asset("assets/images/mapa1.png"),
+                ),
+                ...markers, // Mostramos los marcadores en el mapa
+              ],
+            )
+          ],
+        ),
+      ),
+
+      // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  void _mostrarIcons(String selectedCity) {
+    setState(() {
+      if (selectedCity == 'Cartagena') {
+        markers.add(
+          const Positioned(
+            top: 60,
+            left: 160,
+            child: Icon(
+              Icons.location_on,
+              color: Colors.amberAccent,
+              size: 20,
+            ),
+          ),
+        );
+      }
+      if (selectedCity == 'Bucaramanga') {
+        markers.add(
+          const Positioned(
+            top: 200,
+            left: 250,
+            child: Icon(
+              Icons.location_on,
+              color: Colors.green,
+              size: 20,
+            ),
+          ),
+        );
+      }
+      if (selectedCity == 'Pereira') {
+        markers.add(
+          const Positioned(
+            top: 230,
+            left: 150,
+            child: Icon(
+              Icons.location_on,
+              color: Colors.green,
+              size: 20,
+            ),
+          ),
+        );
+      }
+      if (selectedCity == 'Bogotá') {
+        markers.add(
+          const Positioned(
+            top: 220,
+            left: 190,
+            child: Icon(
+              Icons.location_on,
+              color: Colors.green,
+              size: 20,
+            ),
+          ),
+        );
+      }
+      if (selectedCity == 'Barranquilla') {
+        markers.add(
+          const Positioned(
+            top: 40,
+            left: 180,
+            child: Icon(
+              Icons.location_on,
+              color: Colors.green,
+              size: 20,
+            ),
+          ),
+        );
+      }
+      if (selectedCity == 'Valledupar') {
+        markers.add(
+          const Positioned(
+            top: 60,
+            left: 220,
+            child: Icon(
+              Icons.location_on,
+              color: Colors.green,
+              size: 20,
+            ),
+          ),
+        );
+      }
+      if (selectedCity == 'Medellín') {
+        markers.add(
+          const Positioned(
+            top: 180,
+            left: 170,
+            child: Icon(
+              Icons.location_on,
+              color: Colors.green,
+              size: 20,
+            ),
+          ),
+        );
+      }
+      if (selectedCity == 'Armenia') {
+        markers.add(
+          const Positioned(
+            top: 210,
+            left: 150,
+            child: Icon(
+              Icons.location_on,
+              color: Colors.green,
+              size: 20,
+            ),
+          ),
+        );
+      }
+      if (selectedCity == 'Cali') {
+        markers.add(
+          const Positioned(
+            top: 250,
+            left: 130,
+            child: Icon(
+              Icons.location_on,
+              color: Colors.orange,
+              size: 20,
+            ),
+          ),
+        );
+      }
+    });
+  }
+}
