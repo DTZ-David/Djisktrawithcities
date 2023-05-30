@@ -1,8 +1,15 @@
 class City {
   final String name;
-  late List<Connection> connections;
+  late List<Connection> landConnections;
+  late List<Connection> airConnections;
 
-  City({required this.name, required this.connections});
+  City(
+      {required this.name,
+      List<Connection>? landConnections,
+      List<Connection>? airConnections}) {
+    this.landConnections = landConnections ?? [];
+    this.airConnections = airConnections ?? [];
+  }
 }
 
 class Connection {
@@ -12,7 +19,8 @@ class Connection {
   Connection({required this.destination, required this.distance});
 }
 
-List<City> dijkstra(City start, City end) {
+List<City> dijkstra(City start, City end,
+    {bool includeAirConnections = false}) {
   final Map<City, int> distances = {};
   final Map<City, City> previousCities = {};
   final Set<City> visitedCities = <City>{};
@@ -28,7 +36,13 @@ List<City> dijkstra(City start, City end) {
 
     visitedCities.add(currentCity);
 
-    for (Connection connection in currentCity.connections) {
+    List<Connection> connections = currentCity.landConnections;
+
+    if (includeAirConnections) {
+      connections.addAll(currentCity.airConnections);
+    }
+
+    for (Connection connection in connections) {
       int distance = distances[currentCity]! + connection.distance;
 
       if (!distances.containsKey(connection.destination) ||
@@ -72,55 +86,82 @@ List<City> buildShortestPath(City end, Map<City, City> previousCities) {
 
 void main() {
   // Crear las ciudades
-  City cityArmenia = City(name: "Armenia", connections: []);
-  City cityValledupar = City(name: "Valledupar", connections: []);
-  City cityBogota = City(name: "Bogotá", connections: []);
-  City cityBucaramanga = City(name: "Bucaramanga", connections: []);
-  City cityCartagena = City(name: "Cartagena", connections: []);
-  City cityPereira = City(name: "Pereira", connections: []);
-  City cityBarranquilla = City(name: "Barranquilla", connections: []);
-  City cityMedellin = City(name: "Medellín", connections: []);
-  City cityCali = City(name: "Cali", connections: []);
+  City cityArmenia = City(name: "Armenia");
+  City cityValledupar = City(name: "Valledupar");
+  City cityBogota = City(name: "Bogotá");
+  City cityBucaramanga = City(name: "Bucaramanga");
+  City citySantaMarta = City(name: "Santa Marta");
 
-  // Crear las conexiones entre ciudades
-  cityArmenia.connections = [
-    Connection(destination: cityValledupar, distance: 100),
+  City cityBarranquilla = City(name: "Barranquilla");
+  City cityMedellin = City(name: "Medellín");
+  City cityCali = City(name: "Cali");
+
+  // Crear las conexiones terrestres entre ciudades
+  cityArmenia.landConnections = [
+    Connection(destination: cityValledupar, distance: 314),
+    Connection(destination: cityBogota, distance: 278),
+    Connection(destination: cityBucaramanga, distance: 188),
+  ];
+
+  cityValledupar.landConnections = [
+    Connection(destination: cityArmenia, distance: 314),
+    Connection(destination: cityBogota, distance: 537),
+    Connection(destination: citySantaMarta, distance: 207),
+  ];
+
+  cityBogota.landConnections = [
+    Connection(destination: cityArmenia, distance: 278),
+    Connection(destination: cityValledupar, distance: 537),
+    Connection(destination: cityBarranquilla, distance: 893),
+    Connection(destination: cityMedellin, distance: 257),
+    Connection(destination: cityCali, distance: 395),
+  ];
+
+  cityBucaramanga.landConnections = [
+    Connection(destination: cityArmenia, distance: 188),
+    Connection(destination: cityMedellin, distance: 246),
+    Connection(destination: cityCali, distance: 456),
+  ];
+
+  citySantaMarta.landConnections = [
+    Connection(destination: cityValledupar, distance: 207),
+    Connection(destination: cityBarranquilla, distance: 68),
+  ];
+
+  cityBarranquilla.landConnections = [
+    Connection(destination: cityBogota, distance: 893),
+    Connection(destination: citySantaMarta, distance: 68),
+  ];
+
+  cityMedellin.landConnections = [
+    Connection(destination: cityBogota, distance: 257),
+    Connection(destination: cityBucaramanga, distance: 246),
+  ];
+
+  cityCali.landConnections = [
+    Connection(destination: cityBogota, distance: 395),
+    Connection(destination: cityBucaramanga, distance: 456),
+  ];
+
+  // Crear las conexiones aéreas entre ciudades
+  cityBogota.airConnections = [
+    Connection(destination: cityMedellin, distance: 200),
+    Connection(destination: cityCali, distance: 300),
+  ];
+
+  cityMedellin.airConnections = [
     Connection(destination: cityBogota, distance: 200),
-  ];
-  cityValledupar.connections = [
-    Connection(destination: cityArmenia, distance: 100),
-    Connection(destination: cityBogota, distance: 300),
-  ];
-  cityBogota.connections = [
-    Connection(destination: cityArmenia, distance: 200),
-    Connection(destination: cityValledupar, distance: 300),
-  ];
-  cityBucaramanga.connections = [
-    Connection(destination: cityMedellin, distance: 400),
-    Connection(destination: cityBarranquilla, distance: 500),
-  ];
-  cityCartagena.connections = [
-    Connection(destination: cityBarranquilla, distance: 200),
-  ];
-  cityPereira.connections = [
-    Connection(destination: cityArmenia, distance: 150),
     Connection(destination: cityCali, distance: 250),
   ];
-  cityBarranquilla.connections = [
-    Connection(destination: cityCartagena, distance: 200),
-    Connection(destination: cityBucaramanga, distance: 500),
-  ];
-  cityMedellin.connections = [
-    Connection(destination: cityBucaramanga, distance: 400),
-    Connection(destination: cityCali, distance: 600),
-  ];
-  cityCali.connections = [
-    Connection(destination: cityMedellin, distance: 600),
-    Connection(destination: cityPereira, distance: 250),
+
+  cityCali.airConnections = [
+    Connection(destination: cityBogota, distance: 300),
+    Connection(destination: cityMedellin, distance: 250),
   ];
 
-  // Ejecutar el algoritmo de Dijkstra
-  List<City> shortestPath = dijkstra(cityMedellin, cityValledupar);
+  // Ejecutar el algoritmo de Dijkstra considerando conexiones terrestres y aéreas
+  List<City> shortestPath =
+      dijkstra(cityMedellin, cityValledupar, includeAirConnections: false);
 
   // Imprimir la ruta más corta
   print("Ruta más corta: ");
