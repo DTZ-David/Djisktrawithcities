@@ -39,8 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   City cityValledupar = City(name: "Valledupar");
   City cityBogota = City(name: "Bogotá");
   City cityBucaramanga = City(name: "Bucaramanga");
-  City citySantaMarta = City(name: "Santa Marta");
-
+  City cityPereira = City(name: "Pereira");
   City cityBarranquilla = City(name: "Barranquilla");
   City cityMedellin = City(name: "Medellín");
   City cityCali = City(name: "Cali");
@@ -51,8 +50,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int aux = 0;
   @override
   Widget build(BuildContext context) {
-// Creación de conexiones con pesos
-    // Crear las conexiones terrestres entre ciudades
     cityArmenia.landConnections = [
       Connection(destination: cityValledupar, distance: 314),
       Connection(destination: cityBogota, distance: 278),
@@ -62,7 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
     cityValledupar.landConnections = [
       Connection(destination: cityArmenia, distance: 314),
       Connection(destination: cityBogota, distance: 537),
-      Connection(destination: citySantaMarta, distance: 207),
     ];
 
     cityBogota.landConnections = [
@@ -71,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Connection(destination: cityBarranquilla, distance: 893),
       Connection(destination: cityMedellin, distance: 257),
       Connection(destination: cityCali, distance: 395),
+      Connection(destination: cityPereira, distance: 234)
     ];
 
     cityBucaramanga.landConnections = [
@@ -79,14 +76,14 @@ class _MyHomePageState extends State<MyHomePage> {
       Connection(destination: cityCali, distance: 456),
     ];
 
-    citySantaMarta.landConnections = [
+    cityPereira.landConnections = [
       Connection(destination: cityValledupar, distance: 207),
       Connection(destination: cityBarranquilla, distance: 68),
     ];
 
     cityBarranquilla.landConnections = [
       Connection(destination: cityBogota, distance: 893),
-      Connection(destination: citySantaMarta, distance: 68),
+      Connection(destination: cityValledupar, distance: 118),
     ];
 
     cityMedellin.landConnections = [
@@ -115,12 +112,30 @@ class _MyHomePageState extends State<MyHomePage> {
       Connection(destination: cityMedellin, distance: 250),
     ];
 
+    // Crear las conexiones marítimas entre ciudades
+
+    // Crear las conexiones por tren entre ciudades
+    cityBogota.trainConnections = [
+      Connection(destination: cityMedellin, distance: 400),
+      Connection(destination: cityCali, distance: 600),
+    ];
+
+    cityMedellin.trainConnections = [
+      Connection(destination: cityBogota, distance: 400),
+      Connection(destination: cityCali, distance: 350),
+    ];
+
+    cityCali.trainConnections = [
+      Connection(destination: cityBogota, distance: 600),
+      Connection(destination: cityMedellin, distance: 350),
+    ];
+
 // Agregado a la lista de ciudades
     List<City> cities = [
       cityArmenia,
       cityValledupar,
       cityBogota,
-      citySantaMarta,
+      cityPereira,
       cityBucaramanga,
       cityBarranquilla,
       cityMedellin,
@@ -214,7 +229,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   cargarVentanaConfirmacion();
                 }
               },
-              child: Icon(Icons.car_crash),
+              child: const Icon(Icons.car_crash),
             )
           ],
         ),
@@ -239,14 +254,62 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.of(context).pop();
                 cargarVentanaTerrestre();
               },
-              child: Text('Terrestre'),
+              child: const Text('Terrestre'),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 cargarVentanaAereo();
               },
-              child: Text('Aerea'),
+              child: const Text('Aerea'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Advertencia'),
+                      content: const Text(
+                          'CUIDADO: Algunas ciudades no poseen conexión marítima.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            cargarVentanaMaritimo();
+                          },
+                          child: const Text('Aceptar'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: const Text('Marítima'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Advertencia'),
+                      content: const Text(
+                          'CUIDADO: Algunas ciudades no poseen conexión ferrea.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            cargarVentanaFerreo();
+                          },
+                          child: const Text('Aceptar'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: const Text('Ferrea'),
             ),
           ],
         );
@@ -257,13 +320,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void cargarVentanaTerrestre() {
     List<City> shortestPath = dijkstra(
         selectedCityOrigin!, selectedCityDestination!,
-        includeAirConnections: false);
+        includeAirConnections: false,
+        includeSeaConnections: false,
+        includeTrainConnections: false);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Ruta más corta"),
+          title: const Text("Ruta más corta"),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize:
@@ -279,8 +344,83 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                setState(() {});
               },
-              child: Text('Cerrar'),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void cargarVentanaFerreo() {
+    List<City> shortestPath = dijkstra(
+        selectedCityOrigin!, selectedCityDestination!,
+        includeAirConnections: false,
+        includeSeaConnections: false,
+        includeTrainConnections: true);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Ruta más corta"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize:
+                  MainAxisSize.min, // Para ajustar la altura al contenido
+              children: shortestPath.map((City city) {
+                return Text(city.name);
+              }).toList(),
+            ),
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(
+              24.0, 20.0, 24.0, 0.0), // Ajustar los valores según sea necesario
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {});
+              },
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void cargarVentanaMaritimo() {
+    List<City> shortestPath = dijkstra(
+        selectedCityOrigin!, selectedCityDestination!,
+        includeAirConnections: false,
+        includeSeaConnections: true,
+        includeTrainConnections: false);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Ruta más corta"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize:
+                  MainAxisSize.min, // Para ajustar la altura al contenido
+              children: shortestPath.map((City city) {
+                return Text(city.name);
+              }).toList(),
+            ),
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(
+              24.0, 20.0, 24.0, 0.0), // Ajustar los valores según sea necesario
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {});
+              },
+              child: const Text('Cerrar'),
             ),
           ],
         );
@@ -291,13 +431,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void cargarVentanaAereo() {
     List<City> shortestPath = dijkstra(
         selectedCityOrigin!, selectedCityDestination!,
-        includeAirConnections: true);
+        includeAirConnections: true,
+        includeSeaConnections: false,
+        includeTrainConnections: false);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Ruta más corta"),
+          title: const Text("Ruta más corta"),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize:
@@ -313,6 +455,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                setState(() {});
               },
               child: Text('Cerrar'),
             ),
