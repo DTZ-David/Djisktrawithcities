@@ -97,19 +97,46 @@ class _MyHomePageState extends State<MyHomePage> {
     ];
 
     // Crear las conexiones aéreas entre ciudades
+    // Agregar conexiones aéreas adicionales entre ciudades
+    cityArmenia.airConnections = [
+      Connection(destination: cityValledupar, distance: 350),
+      Connection(destination: cityMedellin, distance: 300),
+    ];
+
+    cityValledupar.airConnections = [
+      Connection(destination: cityArmenia, distance: 350),
+      Connection(destination: cityBogota, distance: 400),
+    ];
+
     cityBogota.airConnections = [
-      Connection(destination: cityMedellin, distance: 200),
-      Connection(destination: cityCali, distance: 300),
+      Connection(destination: cityValledupar, distance: 400),
+      Connection(destination: cityCali, distance: 350),
+    ];
+
+    cityBucaramanga.airConnections = [
+      Connection(destination: cityMedellin, distance: 250),
+      Connection(destination: cityCali, distance: 400),
+    ];
+
+    cityPereira.airConnections = [
+      Connection(destination: cityBarranquilla, distance: 450),
+      Connection(destination: cityMedellin, distance: 150),
+    ];
+
+    cityBarranquilla.airConnections = [
+      Connection(destination: cityPereira, distance: 450),
+      Connection(destination: cityBogota, distance: 500),
     ];
 
     cityMedellin.airConnections = [
-      Connection(destination: cityBogota, distance: 200),
-      Connection(destination: cityCali, distance: 250),
+      Connection(destination: cityArmenia, distance: 300),
+      Connection(destination: cityBucaramanga, distance: 250),
+      Connection(destination: cityPereira, distance: 40),
     ];
 
     cityCali.airConnections = [
-      Connection(destination: cityBogota, distance: 300),
-      Connection(destination: cityMedellin, distance: 250),
+      Connection(destination: cityBogota, distance: 350),
+      Connection(destination: cityBucaramanga, distance: 400),
     ];
 
     // Crear las conexiones marítimas entre ciudades
