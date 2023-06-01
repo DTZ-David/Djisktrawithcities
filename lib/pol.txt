@@ -1,6 +1,6 @@
+import 'package:djkistra_01/viajeAereo.dart';
+import 'package:djkistra_01/viajeTerrestre.dart';
 import 'package:flutter/material.dart';
-
-import 'ciudad.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,73 +33,140 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String? dropdownValueOrigin;
-  String? dropdownValueDestination; // Valor inicial del ComboBox
+  City? selectedCityOrigin;
+  City? selectedCityDestination;
 
-  City armenia = City("Armenia");
-  City valledupar = City("Valledupar");
-  City bogota = City("Bogotá");
-  City medellin = City("Medellín");
-  City cali = City("Cali");
-  City barranquilla = City("Barranquilla");
-  City cartagena = City("Cartagena");
-  City pereira = City("Pereira");
-  City Bucaramanga = City("bucaramanga");
+  Vuelo? selectedVuelorigin;
+  Vuelo? selectedVueloDestination;
+  // Creación de ciudades
+  City cityArmenia = City(name: "Armenia");
+  City cityValledupar = City(name: "Valledupar");
+  City cityBogota = City(name: "Bogotá");
+  City cityBucaramanga = City(name: "Bucaramanga");
+  City cityPereira = City(name: "Pereira");
+  City cityBarranquilla = City(name: "Barranquilla");
+  City cityMedellin = City(name: "Medellín");
+  City cityCali = City(name: "Cali");
 
-  List<String> ciudades = [
-    ("Armenia"),
-    ("Valledupar"),
-    ("Bogotá"),
-    ("Medellín"),
-    ("Cali"),
-    ("Barranquilla"),
-    ("Cartagena"),
-    ("Pereira"),
-    ("Bucaramnga")
-  ];
+  Vuelo cityArmeniaV = Vuelo(nombre: "Armenia");
+  Vuelo cityValleduparV = Vuelo(nombre: "Valledupar");
+  Vuelo cityBogotaV = Vuelo(nombre: "Bogotá");
+  Vuelo cityBucaramangaV = Vuelo(nombre: "Bucaramanga");
+  Vuelo cityPereiraV = Vuelo(nombre: "Pereira");
+  Vuelo cityBarranquillaV = Vuelo(nombre: "Barranquilla");
+  Vuelo cityMedellinV = Vuelo(nombre: "Medellín");
+  Vuelo cityCaliV = Vuelo(nombre: "Cali");
+  // Ejecutar el algoritmo de Dijkstra considerando conexiones terrestres y aéreas
 
-  List<String> ciudadesOrigin = [];
-  List<String> ciudadesDestination = [];
   List<Widget> markers = [];
-
-  @override
-  void initState() {
-    super.initState();
-    ciudadesOrigin = List<String>.from(ciudades);
-    ciudadesDestination = List<String>.from(ciudades);
-  }
-
+  int aux = 0;
   @override
   Widget build(BuildContext context) {
-    armenia.addConnection(bogota, 150);
-    armenia.addConnection(cali, 180);
+    cityArmenia.landConnections = [
+      Connection(destination: cityValledupar, distance: 414),
+      Connection(destination: cityBogota, distance: 378),
+      Connection(destination: cityBucaramanga, distance: 288),
+    ];
 
-    valledupar.addConnection(barranquilla, 200);
+    cityValledupar.landConnections = [
+      Connection(destination: cityArmenia, distance: 414),
+      Connection(destination: cityBogota, distance: 637),
+    ];
 
-    bogota.addConnection(armenia, 150);
-    bogota.addConnection(medellin, 300);
-    bogota.addConnection(cali, 400);
-    bogota.addConnection(cartagena, 450);
+    cityBogota.landConnections = [
+      Connection(destination: cityArmenia, distance: 378),
+      Connection(destination: cityValledupar, distance: 637),
+      Connection(destination: cityBarranquilla, distance: 993),
+      Connection(destination: cityMedellin, distance: 357),
+      Connection(destination: cityCali, distance: 495),
+      Connection(destination: cityPereira, distance: 334)
+    ];
 
-    medellin.addConnection(bogota, 300);
-    medellin.addConnection(cali, 250);
+    cityBucaramanga.landConnections = [
+      Connection(destination: cityArmenia, distance: 288),
+      Connection(destination: cityMedellin, distance: 346),
+      Connection(destination: cityCali, distance: 556),
+    ];
 
-    cali.addConnection(armenia, 180);
-    cali.addConnection(bogota, 400);
-    cali.addConnection(medellin, 250);
+    cityPereira.landConnections = [
+      Connection(destination: cityValledupar, distance: 307),
+      Connection(destination: cityBarranquilla, distance: 168),
+    ];
 
-    barranquilla.addConnection(valledupar, 200);
+    cityBarranquilla.landConnections = [
+      Connection(destination: cityBogota, distance: 993),
+      Connection(destination: cityValledupar, distance: 218),
+    ];
 
-    cartagena.addConnection(bogota, 450);
+    cityMedellin.landConnections = [
+      Connection(destination: cityBogota, distance: 357),
+      Connection(destination: cityBucaramanga, distance: 346),
+    ];
 
-    pereira.addConnection(bogota, 300);
-    pereira.addConnection(cali, 220);
+    cityCali.landConnections = [
+      Connection(destination: cityBogota, distance: 495),
+      Connection(destination: cityBucaramanga, distance: 556),
+    ];
+
+    // Crear las conexiones aéreas entre ciudades
+    // Agregar conexiones aéreas adicionales entre ciudades
+    cityArmeniaV.airConnections = [
+      ConnectionV(destination: cityValleduparV, distance: 250),
+      ConnectionV(destination: cityMedellinV, distance: 200),
+    ];
+
+    cityValleduparV.airConnections = [
+      ConnectionV(destination: cityArmeniaV, distance: 250),
+      ConnectionV(destination: cityBogotaV, distance: 200),
+    ];
+
+    cityBogotaV.airConnections = [
+      ConnectionV(destination: cityValleduparV, distance: 300),
+      ConnectionV(destination: cityCaliV, distance: 250),
+    ];
+
+    cityBucaramangaV.airConnections = [
+      ConnectionV(destination: cityMedellinV, distance: 150),
+      ConnectionV(destination: cityCaliV, distance: 300),
+    ];
+
+    cityPereiraV.airConnections = [
+      ConnectionV(destination: cityBarranquillaV, distance: 350),
+      ConnectionV(destination: cityMedellinV, distance: 50),
+    ];
+
+    cityBarranquillaV.airConnections = [
+      ConnectionV(destination: cityPereiraV, distance: 350),
+      ConnectionV(destination: cityBogotaV, distance: 400),
+    ];
+
+    cityMedellinV.airConnections = [
+      ConnectionV(destination: cityArmeniaV, distance: 200),
+      ConnectionV(destination: cityBucaramangaV, distance: 150),
+      ConnectionV(destination: cityPereiraV, distance: 20),
+    ];
+
+    cityCaliV.airConnections = [
+      ConnectionV(destination: cityBogotaV, distance: 250),
+      ConnectionV(destination: cityBucaramangaV, distance: 300),
+    ];
+
+    // Agregado a la lista de ciudades
+    List<City> cities = [
+      cityArmenia,
+      cityValledupar,
+      cityBogota,
+      cityPereira,
+      cityBucaramanga,
+      cityBarranquilla,
+      cityMedellin,
+      cityCali,
+    ];
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -108,29 +175,25 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 const Text("Ciudad de origen: "),
-                DropdownButton<String>(
-                  value: dropdownValueOrigin,
-                  hint: Text('Seleccione...'),
-                  onChanged: (String? newValue) {
+                DropdownButton<City>(
+                  value: selectedCityOrigin,
+                  onChanged: (City? city) {
                     setState(() {
-                      dropdownValueOrigin = newValue!;
-                      ciudadesDestination = List<String>.from(ciudades);
-                      ciudadesDestination.remove(newValue);
-                      _mostrarIcons(dropdownValueOrigin.toString());
+                      selectedCityOrigin = city;
+                      _mostrarIcons(selectedCityOrigin!);
+
+                      if (aux > 2) {
+                        markers.clear();
+                        aux = 0;
+                      }
                     });
                   },
-                  items: <DropdownMenuItem<String>>[
-                    const DropdownMenuItem<String>(
-                      value: null,
-                      child: Text('Seleccione...'),
-                    ),
-                    ...ciudades.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ],
+                  items: cities.map<DropdownMenuItem<City>>((City city) {
+                    return DropdownMenuItem<City>(
+                      value: city,
+                      child: Text(city.name),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
@@ -138,30 +201,24 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 const Text("Ciudad de destino: "),
-                DropdownButton<String>(
-                  value: dropdownValueDestination,
-                  hint: const Text('Seleccione...'),
-                  onChanged: (String? newValue) {
+                DropdownButton<City>(
+                  value: selectedCityDestination,
+                  onChanged: (City? city) {
                     setState(() {
-                      dropdownValueDestination = newValue!;
-                      ciudadesOrigin = List<String>.from(ciudades);
-                      ciudadesOrigin.remove(newValue);
-                      _mostrarIcons(dropdownValueDestination.toString());
+                      selectedCityDestination = city;
+                      _mostrarIcons(selectedCityDestination!);
+                      if (aux > 2) {
+                        markers.clear();
+                        aux = 0;
+                      }
                     });
                   },
-                  items: <DropdownMenuItem<String>>[
-                    const DropdownMenuItem<String>(
-                      value: null,
-                      child: Text('Seleccione...'),
-                    ),
-                    ...ciudadesDestination
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }),
-                  ],
+                  items: cities.map<DropdownMenuItem<City>>((City city) {
+                    return DropdownMenuItem<City>(
+                      value: city,
+                      child: Text(city.name),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
@@ -174,6 +231,25 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 ...markers, // Mostramos los marcadores en el mapa
               ],
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedCityDestination == null ||
+                    selectedCityOrigin == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      backgroundColor: Colors.pink,
+                      content: Text(
+                        'Por favor ingrese ciudad de origen y/o destino',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                } else {
+                  cargarVentanaConfirmacion();
+                }
+              },
+              child: const Icon(Icons.car_crash),
             )
           ],
         ),
@@ -183,9 +259,126 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _mostrarIcons(String selectedCity) {
+  void cargarVentanaConfirmacion() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("¿Desea ruta terrestre o aerea?"),
+
+          contentPadding: const EdgeInsets.fromLTRB(
+              24.0, 20.0, 24.0, 0.0), // Ajustar los valores según sea necesario
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                cargarVentanaTerrestre();
+              },
+              child: const Text('Terrestre'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                cargarVentanaAereo();
+              },
+              child: const Text('Aerea'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void cargarVentanaTerrestre() {
+    ShortestPathCityResult result =
+        dijkstraT(selectedCityOrigin!, selectedCityDestination!);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Ruta más corta"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ...result.shortestPath.map((City city) {
+                  return Text(city.name);
+                }).toList(),
+                SizedBox(
+                    height:
+                        20), // Espacio entre las ciudades y la suma de distancias
+                Text(
+                  "Suma de distancias: ${result.totalDistance}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0.0),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {});
+              },
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void cargarVentanaAereo() {
+    ShortestPathFlyResult result =
+        dijkstra(selectedVuelorigin!, selectedVueloDestination!);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Ruta más corta"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                 ...result.shortestPath.map((Vuelo vuelo) {
+                  return Text(vuelo.nombre);
+                }).toList(),
+                SizedBox(
+                    height:
+                        20), // Espacio entre las ciudades y la suma de distancias
+                Text(
+                  "Suma de distancias: ${result.totalDistance}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0.0),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {});
+              },
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _mostrarIcons(City selectedCity) {
     setState(() {
-      if (selectedCity == 'Cartagena') {
+      if (selectedCity.name == 'Cartagena') {
+        aux = aux + 1;
         markers.add(
           const Positioned(
             top: 60,
@@ -198,7 +391,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }
-      if (selectedCity == 'Bucaramanga') {
+      if (selectedCity.name == 'Bucaramanga') {
+        aux = aux + 1;
         markers.add(
           const Positioned(
             top: 200,
@@ -211,7 +405,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }
-      if (selectedCity == 'Pereira') {
+      if (selectedCity.name == 'Pereira') {
+        aux = aux + 1;
         markers.add(
           const Positioned(
             top: 230,
@@ -224,7 +419,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }
-      if (selectedCity == 'Bogotá') {
+      if (selectedCity.name == 'Bogotá') {
+        aux = aux + 1;
         markers.add(
           const Positioned(
             top: 220,
@@ -237,7 +433,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }
-      if (selectedCity == 'Barranquilla') {
+      if (selectedCity.name == 'Barranquilla') {
+        aux = aux + 1;
         markers.add(
           const Positioned(
             top: 40,
@@ -250,7 +447,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }
-      if (selectedCity == 'Valledupar') {
+      if (selectedCity.name == 'Valledupar') {
+        aux = aux + 1;
         markers.add(
           const Positioned(
             top: 60,
@@ -263,7 +461,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }
-      if (selectedCity == 'Medellín') {
+      if (selectedCity.name == 'Medellín') {
+        aux = aux + 1;
         markers.add(
           const Positioned(
             top: 180,
@@ -276,7 +475,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }
-      if (selectedCity == 'Armenia') {
+      if (selectedCity.name == 'Armenia') {
+        aux = aux + 1;
         markers.add(
           const Positioned(
             top: 210,
@@ -289,7 +489,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }
-      if (selectedCity == 'Cali') {
+      if (selectedCity.name == 'Cali') {
+        aux = aux + 1;
         markers.add(
           const Positioned(
             top: 250,
@@ -303,5 +504,416 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       }
     });
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import 'package:djkistra_01/viajeTerrestre.dart';
+
+class Vuelo {
+  final String nombre;
+  late List<ConnectionV> airConnections;
+
+  Vuelo({
+    required this.nombre,
+    List<ConnectionV>? airConnections,
+  }) {
+    this.airConnections = airConnections ?? [];
+  }
+}
+
+class ConnectionV {
+  final Vuelo destination;
+  final int distance;
+
+  ConnectionV({required this.destination, required this.distance});
+}
+
+ShortestPathFlyResult dijkstra(
+  Vuelo start,
+  Vuelo end,
+) {
+  final Map<Vuelo, int> distances = {};
+  final Map<Vuelo, Vuelo> previousCities = {};
+  final Set<Vuelo> visitedCities = <Vuelo>{};
+
+  distances[start] = 0;
+
+  while (visitedCities.length < distances.length) {
+    Vuelo currentCity = getCityWithShortestDistance(distances, visitedCities);
+
+    if (currentCity == end) {
+      break; // Llegamos a la ciudad de destino, terminamos el algoritmo
+    }
+
+    visitedCities.add(currentCity);
+
+    List<ConnectionV> connections = [];
+
+    connections.addAll(currentCity.airConnections);
+
+    for (ConnectionV connection in connections) {
+      int distance = distances[currentCity]! + connection.distance;
+
+      if (!distances.containsKey(connection.destination) ||
+          distance < distances[connection.destination]!) {
+        distances[connection.destination] = distance;
+        previousCities[connection.destination] = currentCity;
+      }
+    }
+  }
+
+  int totalDistance = 0; // Variable para acumular la suma de las distancias
+
+  List<Vuelo> shortestPath = buildShortestPath(end, previousCities);
+  for (int i = 0; i < shortestPath.length - 1; i++) {
+    Vuelo currentCity = shortestPath[i];
+    Vuelo nextCity = shortestPath[i + 1];
+    List<ConnectionV> connections = currentCity.airConnections;
+    for (ConnectionV connection in connections) {
+      if (connection.destination == nextCity) {
+        totalDistance += connection.distance;
+        break;
+      }
+    }
+  }
+
+  print("Suma de distancias del camino más corto: $totalDistance");
+
+  return ShortestPathFlyResult(shortestPath, totalDistance);
+}
+
+Vuelo getCityWithShortestDistance(
+    Map<Vuelo, int> distances, Set<Vuelo> visitedCities) {
+  Vuelo? shortestCity;
+  int shortestDistance = 99999;
+
+  for (var entry in distances.entries) {
+    if (entry.value < shortestDistance && !visitedCities.contains(entry.key)) {
+      shortestCity = entry.key;
+      shortestDistance = entry.value;
+    }
+  }
+
+  return shortestCity!;
+}
+
+List<Vuelo> buildShortestPath(Vuelo end, Map<Vuelo, Vuelo> previousCities) {
+  final List<Vuelo> path = [];
+
+  Vuelo? currentCity = end;
+
+  while (currentCity != null) {
+    path.insert(0, currentCity);
+    currentCity = previousCities[currentCity];
+  }
+
+  return path;
+}
+
+void main() {
+  // Crear las ciudades
+  Vuelo cityArmenia = Vuelo(nombre: "Armenia");
+  Vuelo cityValledupar = Vuelo(nombre: "Valledupar");
+  Vuelo cityBogota = Vuelo(nombre: "Bogotá");
+  Vuelo cityBucaramanga = Vuelo(nombre: "Bucaramanga");
+  Vuelo cityPereira = Vuelo(nombre: "Pereira");
+  Vuelo cityBarranquilla = Vuelo(nombre: "Barranquilla");
+  Vuelo cityMedellin = Vuelo(nombre: "Medellín");
+  Vuelo cityCali = Vuelo(nombre: "Cali");
+
+  // Crear las conexiones terrestres entre ciudades
+
+  // Crear las conexiones aéreas entre ciudades
+  // Agregar conexiones aéreas adicionales entre ciudades
+  cityArmenia.airConnections = [
+    ConnectionV(destination: cityValledupar, distance: 350),
+    ConnectionV(destination: cityMedellin, distance: 300),
+  ];
+
+  cityValledupar.airConnections = [
+    ConnectionV(destination: cityArmenia, distance: 350),
+    ConnectionV(destination: cityBogota, distance: 400),
+  ];
+
+  cityBogota.airConnections = [
+    ConnectionV(destination: cityValledupar, distance: 400),
+    ConnectionV(destination: cityCali, distance: 350),
+  ];
+
+  cityBucaramanga.airConnections = [
+    ConnectionV(destination: cityMedellin, distance: 250),
+    ConnectionV(destination: cityCali, distance: 400),
+  ];
+
+  cityPereira.airConnections = [
+    ConnectionV(destination: cityBarranquilla, distance: 450),
+    ConnectionV(destination: cityMedellin, distance: 150),
+  ];
+
+  cityBarranquilla.airConnections = [
+    ConnectionV(destination: cityPereira, distance: 450),
+    ConnectionV(destination: cityBogota, distance: 500),
+  ];
+
+  cityMedellin.airConnections = [
+    ConnectionV(destination: cityArmenia, distance: 300),
+    ConnectionV(destination: cityBucaramanga, distance: 250),
+    ConnectionV(destination: cityPereira, distance: 40),
+  ];
+
+  cityCali.airConnections = [
+    ConnectionV(destination: cityBogota, distance: 350),
+    ConnectionV(destination: cityBucaramanga, distance: 400),
+  ];
+
+  // Crear las conexiones marítimas entre ciudades
+
+  // Crear las conexiones por tren entre ciudades
+
+  // Ejecutar el algoritmo de Dijkstra considerando conexiones terrestres, aéreas, marítimas y por tren
+ 
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ignore_for_file: file_names
+
+import 'package:djkistra_01/viajeAereo.dart';
+
+class City {
+  final String name;
+  late List<Connection> landConnections;
+
+  City({
+    required this.name,
+    List<Connection>? landConnections,
+  }) {
+    this.landConnections = landConnections ?? [];
+  }
+}
+
+class ShortestPathCityResult {
+  final List<City> shortestPath;
+  final int totalDistance;
+
+  ShortestPathCityResult(this.shortestPath, this.totalDistance);
+}
+
+class ShortestPathFlyResult {
+  final List<Vuelo> shortestPath;
+  final int totalDistance;
+
+  ShortestPathFlyResult(this.shortestPath, this.totalDistance);
+}
+
+class Connection {
+  final City destination;
+  final int distance;
+
+  Connection({required this.destination, required this.distance});
+}
+
+ShortestPathCityResult dijkstraT(
+  City start,
+  City end,
+) {
+  final Map<City, int> distances = {};
+  final Map<City, City> previousCities = {};
+  final Set<City> visitedCities = <City>{};
+
+  distances[start] = 0;
+
+  while (visitedCities.length < distances.length) {
+    City currentCity = getCityWithShortestDistance(distances, visitedCities);
+
+    if (currentCity == end) {
+      break; // Llegamos a la ciudad de destino, terminamos el algoritmo
+    }
+
+    visitedCities.add(currentCity);
+
+    List<Connection> connections = [];
+
+    connections.addAll(currentCity.landConnections);
+
+    for (Connection connection in connections) {
+      int distance = distances[currentCity]! + connection.distance;
+
+      if (!distances.containsKey(connection.destination) ||
+          distance < distances[connection.destination]!) {
+        distances[connection.destination] = distance;
+        previousCities[connection.destination] = currentCity;
+      }
+    }
+  }
+
+  int totalDistance = 0; // Variable para acumular la suma de las distancias
+
+  List<City> shortestPath = buildShortestPath(end, previousCities);
+  for (int i = 0; i < shortestPath.length - 1; i++) {
+    City currentCity = shortestPath[i];
+    City nextCity = shortestPath[i + 1];
+    List<Connection> connections = currentCity.landConnections;
+    for (Connection connection in connections) {
+      if (connection.destination == nextCity) {
+        totalDistance += connection.distance;
+        break;
+      }
+    }
+  }
+
+  print("Suma de distancias del camino más corto: $totalDistance");
+
+  return ShortestPathCityResult(shortestPath, totalDistance);
+}
+
+City getCityWithShortestDistance(
+    Map<City, int> distances, Set<City> visitedCities) {
+  City? shortestCity;
+  int shortestDistance = 99999;
+
+  for (var entry in distances.entries) {
+    if (entry.value < shortestDistance && !visitedCities.contains(entry.key)) {
+      shortestCity = entry.key;
+      shortestDistance = entry.value;
+    }
+  }
+
+  return shortestCity!;
+}
+
+List<City> buildShortestPath(City end, Map<City, City> previousCities) {
+  final List<City> path = [];
+
+  City? currentCity = end;
+
+  while (currentCity != null) {
+    path.insert(0, currentCity);
+    currentCity = previousCities[currentCity];
+  }
+
+  return path;
+}
+
+void main() {
+  // Crear las ciudades
+  City cityArmenia = City(name: "Armenia");
+  City cityValledupar = City(name: "Valledupar");
+  City cityBogota = City(name: "Bogotá");
+  City cityBucaramanga = City(name: "Bucaramanga");
+  City cityPereira = City(name: "Pereira");
+  City cityBarranquilla = City(name: "Barranquilla");
+  City cityMedellin = City(name: "Medellín");
+  City cityCali = City(name: "Cali");
+
+  // Crear las conexiones terrestres entre ciudades
+  cityArmenia.landConnections = [
+    Connection(destination: cityValledupar, distance: 314),
+    Connection(destination: cityBogota, distance: 278),
+    Connection(destination: cityBucaramanga, distance: 188),
+  ];
+
+  cityValledupar.landConnections = [
+    Connection(destination: cityArmenia, distance: 314),
+    Connection(destination: cityBogota, distance: 537),
+  ];
+
+  cityBogota.landConnections = [
+    Connection(destination: cityArmenia, distance: 278),
+    Connection(destination: cityValledupar, distance: 537),
+    Connection(destination: cityBarranquilla, distance: 893),
+    Connection(destination: cityMedellin, distance: 257),
+    Connection(destination: cityCali, distance: 395),
+    Connection(destination: cityPereira, distance: 234)
+  ];
+
+  cityBucaramanga.landConnections = [
+    Connection(destination: cityArmenia, distance: 188),
+    Connection(destination: cityMedellin, distance: 246),
+    Connection(destination: cityCali, distance: 456),
+  ];
+
+  cityPereira.landConnections = [
+    Connection(destination: cityValledupar, distance: 207),
+    Connection(destination: cityBarranquilla, distance: 68),
+  ];
+
+  cityBarranquilla.landConnections = [
+    Connection(destination: cityBogota, distance: 893),
+    Connection(destination: cityValledupar, distance: 118),
+  ];
+
+  cityMedellin.landConnections = [
+    Connection(destination: cityBogota, distance: 257),
+    Connection(destination: cityBucaramanga, distance: 246),
+  ];
+
+  cityCali.landConnections = [
+    Connection(destination: cityBogota, distance: 395),
+    Connection(destination: cityBucaramanga, distance: 456),
+  ];
+
+  // Crear las conexiones aéreas entre ciudades
+
+  // Crear las conexiones marítimas entre ciudades
+
+  // Crear las conexiones por tren entre ciudades
+
+  // Ejecutar el algoritmo de Dijkstra considerando conexiones terrestres, aéreas, marítimas y por tren
+  ShortestPathCityResult result = dijkstraT(cityBarranquilla, cityCali);
+
+  List<City> shortestPath = result.shortestPath;
+  int totalDistance = result.totalDistance;
+
+  print("Ruta más corta: ");
+  for (City city in shortestPath) {
+    print(city.name);
   }
 }
